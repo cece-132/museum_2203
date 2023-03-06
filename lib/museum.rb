@@ -1,3 +1,4 @@
+require 'pry'
 class Museum
   attr_reader :name, :exhibits, :patrons
 
@@ -7,8 +8,10 @@ class Museum
     @patrons = []
   end
 
-  def recommend_exhibits(patron_interests)
-    patron.interests
+  def recommend_exhibits(patron)
+    @exhibits.map do |exhibit|
+      exhibit if patron.interests.include?(exhibit.name)
+    end.compact.sort_by { |exhibit| exhibit.name }
   end
 
   def add_exhibit(exhibit)
