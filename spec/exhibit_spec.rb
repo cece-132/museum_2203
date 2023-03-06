@@ -3,19 +3,16 @@ require 'pry'
 
 RSpec.describe Exhibit do
 
-  it "exists" do
-
-    exhibit = Exhibit.new({name: "Gems and Minerals", cost: 0})
-
-    expect(exhibit).to be_a(Exhibit)
+  before :each do
+    @exhibit = Exhibit.new({name: "Gems and Minerals", cost: 0})
   end
-
-  it "has a name and cost" do
-
-    exhibit = Exhibit.new({name: "Gems and Minerals", cost: 0})
-
-    expect(exhibit.name).to eq("Gems and Minerals")
-    expect(exhibit.cost).to eq(0)
+  
+  describe 'initialize' do
+    it 'exists and has attributes' do
+      expect(@exhibit).to be_a(Exhibit)
+      expect(@exhibit.name).to eq("Gems and Minerals")
+      expect(@exhibit.cost).to eq(0)
+    end
   end
 
 end
