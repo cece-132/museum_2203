@@ -11,4 +11,8 @@ class Patron
     @interests << exhibit
   end
 
+  def attend_exhibit
+    
+  end
+
 end

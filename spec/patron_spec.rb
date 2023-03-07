@@ -5,67 +5,55 @@ require 'pry'
 
 RSpec.describe Patron do
 
-  it "exists" do
+  describe '#initialize' do
+    it 'exists and has attributes' do
+      @patron = Patron.new("Bob", 20)
 
-    patron = Patron.new("name", 3)
-
-    expect(patron).to be_a(Patron)
+      expect(@patron).to be_a(Patron)
+      expect(@patron.name).to eq("Bob")
+      expect(@patron.spending_money).to eq(20)
+      expect(@patron.interests).to eq([])
+    end
   end
 
-  it "has a name and spending money" do
+  describe '#add_interests(interest)' do
+    it 'can add an interest to the patrons interest array' do
+      @patron = Patron.new("Bob", 20)
 
-      patron_1 = Patron.new("Bob", 20)
+      @patron.add_interest("Dead Sea Scrolls")
+      @patron.add_interest("Gems and Minerals")
 
-      expect(patron_1.name).to eq("Bob")
-      expect(patron_1.spending_money).to eq(20)
+      expect(@patron.interests).to eq(["Dead Sea Scrolls","Gems and Minerals"])
+    end
   end
 
-  it "has interests" do
+  describe '#spending_money' do
+    before :each do
+      @dmns = Museum.new("Denver Museum of Nature and Science")
+      @gems_and_minerals = Exhibit.new({name: "Gems and Minerals", cost: 0})
+      @imax = Exhibit.new({name: "IMAX",cost: 15})
+      @dead_sea_scrolls = Exhibit.new({name: "Dead Sea Scrolls", cost: 10})
 
-    patron_1 = Patron.new("Bob", 20)
+      @dmns.add_exhibit(@gems_and_minerals)
+      @dmns.add_exhibit(@imax)
+      @dmns.add_exhibit(@dead_sea_scrolls)
+    end
 
-    expect(patron_1.interests).to eq([])
+    xit 'returns the amount of spending money that the patron has left' do
+      @tj = Patron.new("TJ", 7)
+      @tj.add_interest("IMAX")
+      @tj.add_interest("Dead Sea Scrolls")
+      @dmns.admit(@tj)
 
-    patron_1.add_interest("Dead Sea Scrolls")
-    patron_1.add_interest("Gems and Minerals")
+      expect(@tj.spending_money).to eq 7
+    end
 
-    expect(patron_1.interests).to eq(["Dead Sea Scrolls","Gems and Minerals"])
-
+    xit 'only one exhibit is in the price range they attend that one' do
+      @bob = Patron.new("Bob", 10)
+      @bob.add_interest("Dead Sea Scrolls")
+      @bob.add_interest("IMAX")
+      @dmns.admit(@bob)
+      expect(@bob.spending_money).to eq 0
+    end
   end
-
-  it "has a new patron w/ interests" do
-
-    patron_2 = Patron.new("Sally", 20)
-
-    expect(patron_2.interests).to eq([])
-
-    patron_2.add_interest("IMAX")
-
-  end
-
-  xit "can recommend exhibits" do
-
-    patron_1 = Patron.new("Bob", 20)
-    patron_2 = Patron.new("Sally", 20)
-
-    expect(patron_1.interests).to eq([])
-    expect(patron_2.interests).to eq([])
-
-    patron_1.add_interest("Dead Sea Scrolls")
-    patron_1.add_interest("Gems and Minerals")
-    patron_2.add_interest("IMAX")
-
-    expect(patron_1.interests).to eq(["Dead Sea Scrolls","Gems and Minerals"])
-    expect(patron_2.interests).to eq(["IMAX"])
-
-    dmns = Museum.new("Denver Museum of Nature and Science")
-
-    dmns.recommend_exhibits(patron_1)
-    dmns.recommend_exhibits(patron_2)
-
-    expect(dmns.recommend_exhibits(patron_1)).to eq(patron_1.interests)
-    expect(dmns.recommend_exhibits(patron_2)).to eq(patron_2.interests)
-
-  end
-
 end

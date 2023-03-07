@@ -4,149 +4,187 @@ require './lib/exhibit'
 require 'pry'
 
 RSpec.describe Museum do
-
-  it "exists" do
-
-    dmns = Museum.new("Denver Museum of Nature and Science")
-
-    expect(dmns).to be_a(Museum)
+  before :each do
+    @dmns = Museum.new("Denver Museum of Nature and Science")
   end
 
-  it "has a name" do
-
-    dmns = Museum.new("Denver Museum of Nature and Science")
-
-    expect(dmns.name).to eq("Denver Museum of Nature and Science")
+  describe '#initialize' do
+    it 'exists and has attributes' do
+      expect(@dmns).to be_a(Museum)
+      expect(@dmns.name).to eq("Denver Museum of Nature and Science")
+      expect(@dmns.exhibits).to be_empty
+      expect(@dmns.exhibits).to be_a Array
+      expect(@dmns.patrons).to be_empty
+      expect(@dmns.exhibits).to be_a Array
+    end
   end
 
-  it "has exhibits" do
+  describe '#add_exhibit(exhibit)' do
+    it 'can add exhibits' do
+      gems_and_minerals = Exhibit.new({name: "Gems and Minerals", cost: 0})
+      dead_sea_scrolls = Exhibit.new({name: "Dead Sea Scrolls", cost: 10})
+      imax = Exhibit.new({name: "IMAX",cost: 15})
 
-    dmns = Museum.new("Denver Museum of Nature and Science")
-
-    expect(dmns.exhibits).to be_empty
-
-    gems_and_minerals = Exhibit.new({name: "Gems and Minerals", cost: 0})
-    dead_sea_scrolls = Exhibit.new({name: "Dead Sea Scrolls", cost: 10})
-    imax = Exhibit.new({name: "IMAX",cost: 15})
-
-    dmns.add_exhibit(gems_and_minerals)
-    dmns.add_exhibit(dead_sea_scrolls)
-    dmns.add_exhibit(imax)
-
-    expect(dmns.exhibits).to eq([gems_and_minerals, dead_sea_scrolls, imax])
+      @dmns.add_exhibit(gems_and_minerals)
+      @dmns.add_exhibit(dead_sea_scrolls)
+      @dmns.add_exhibit(imax)
+      expect(@dmns.exhibits).to eq([gems_and_minerals, dead_sea_scrolls, imax])
+    end
   end
 
-  it "has patrons" do
-    dmns = Museum.new("Denver Museum of Nature and Science")
+  describe '#admit(patron)' do
+    before :each do
+      @gems_and_minerals = Exhibit.new({name: "Gems and Minerals", cost: 0})
+      @dead_sea_scrolls = Exhibit.new({name: "Dead Sea Scrolls", cost: 10})
+      @imax = Exhibit.new({name: "IMAX",cost: 15})
 
-    expect(dmns.exhibits).to be_empty
+      @patron_1 = Patron.new("Bob", 0)
+      @patron_2 = Patron.new("Sally", 20)
+      @patron_3 = Patron.new("Johnny", 5)
+    end
 
-    gems_and_minerals = Exhibit.new({name: "Gems and Minerals", cost: 0})
-    dead_sea_scrolls = Exhibit.new({name: "Dead Sea Scrolls", cost: 10})
-    imax = Exhibit.new({name: "IMAX",cost: 15})
+    it 'can add patrons to patron array' do
+      @dmns.admit(@patron_1)
+      @dmns.admit(@patron_2)
+      @dmns.admit(@patron_3)
 
-    dmns.add_exhibit(gems_and_minerals)
-    dmns.add_exhibit(dead_sea_scrolls)
-    dmns.add_exhibit(imax)
-
-    expect(dmns.exhibits).to eq([gems_and_minerals, dead_sea_scrolls, imax])
-    expect(dmns.patrons).to eq([])
-
-    patron_1 = Patron.new("Bob", 0)
-    patron_2 = Patron.new("Sally", 20)
-    patron_3 = Patron.new("Johnny", 5)
-
-    patron_1.add_interest("Gems and Minerals")
-    patron_1.add_interest("Dead Sea Scrolls")
-    patron_2.add_interest("Dead Sea Scrolls")
-    patron_3.add_interest("Dead Sea Scrolls")
-
-    dmns.admit(patron_1)
-    dmns.admit(patron_2)
-    dmns.admit(patron_3)
-
-    expect(dmns.patrons).to eq([patron_1,patron_2,patron_3])
-
+      expect(@dmns.patrons).to eq([@patron_1, @patron_2, @patron_3])
+    end
   end
 
-  it "groups patrons by exhibit interest" do
-    dmns = Museum.new("Denver Museum of Nature and Science")
+  describe '#add_exhibits' do
+    before :each do
+      @gems_and_minerals = Exhibit.new({name: "Gems and Minerals", cost: 0})
+      @dead_sea_scrolls = Exhibit.new({name: "Dead Sea Scrolls", cost: 10})
+      @imax = Exhibit.new({name: "IMAX",cost: 15})
+    end
 
-    expect(dmns.exhibits).to be_empty
+    it 'can add exhibits to the museum' do
+      @dmns.add_exhibit(@gems_and_minerals)
+      @dmns.add_exhibit(@dead_sea_scrolls)
+      @dmns.add_exhibit(@imax)
 
-    gems_and_minerals = Exhibit.new({name: "Gems and Minerals", cost: 0})
-    dead_sea_scrolls = Exhibit.new({name: "Dead Sea Scrolls", cost: 10})
-    imax = Exhibit.new({name: "IMAX",cost: 15})
-
-    dmns.add_exhibit(gems_and_minerals)
-    dmns.add_exhibit(dead_sea_scrolls)
-    dmns.add_exhibit(imax)
-
-    expect(dmns.exhibits).to eq([gems_and_minerals, dead_sea_scrolls, imax])
-    expect(dmns.patrons).to eq ([])
-
-    patron_1 = Patron.new("Bob", 0)
-    patron_2 = Patron.new("Sally", 20)
-    patron_3 = Patron.new("Johnny", 5)
-
-    patron_1.add_interest("Gems and Minerals")
-    patron_1.add_interest("Dead Sea Scrolls")
-    patron_2.add_interest("Dead Sea Scrolls")
-    patron_3.add_interest("Dead Sea Scrolls")
-
-    dmns.admit(patron_1)
-    dmns.admit(patron_2)
-    dmns.admit(patron_3)
-
-    expect(dmns.patrons_by_exhibit_interest).to eq({gems_and_minerals: ["Bob"], dead_sea_scrolls: ["Bob","Sally","Johnny"], imax: []})
-
+      expect(@dmns.exhibits).to eq([@gems_and_minerals, @dead_sea_scrolls, @imax])
+    end
   end
 
-  xit "can use the grouped patrons to choose a lottery winner" do
-    dmns = Museum.new("Denver Museum of Nature and Science")
+  describe '#recommend_exhibits(patron)' do
+    it 'can sort exhibits by patron interests' do
+      @gems_and_minerals = Exhibit.new({name: "Gems and Minerals", cost: 0})
+      @dead_sea_scrolls = Exhibit.new({name: "Dead Sea Scrolls", cost: 10})
+      @imax = Exhibit.new({name: "IMAX",cost: 15})
 
-    expect(dmns.exhibits).to be_empty
+      @dmns.add_exhibit(@gems_and_minerals)
+      @dmns.add_exhibit(@dead_sea_scrolls)
+      @dmns.add_exhibit(@imax)
 
-    gems_and_minerals = Exhibit.new({name: "Gems and Minerals", cost: 0})
-    dead_sea_scrolls = Exhibit.new({name: "Dead Sea Scrolls", cost: 10})
-    imax = Exhibit.new({name: "IMAX",cost: 15})
+      @patron_1 = Patron.new("Bob", 20)
 
-    dmns.add_exhibit(gems_and_minerals)
-    dmns.add_exhibit(dead_sea_scrolls)
-    dmns.add_exhibit(imax)
+      @patron_1.add_interest("Dead Sea Scrolls")      
+      @patron_1.add_interest("Gems and Minerals")
 
-    expect(dmns.exhibits).to eq(["gems_and_minerals", "dead_sea_scrolls", "imax"])
-    expect(dmns.patrons).to eq be_empty
+      expect(@dmns.recommend_exhibits(@patron_1)).to be_a Array
+      expect(@dmns.recommend_exhibits(@patron_1)).to eq [@dead_sea_scrolls, @gems_and_minerals]
+    end
+  end
 
-    patron_1 = Patron.new("Bob", 0)
-    patron_2 = Patron.new("Sally", 20)
-    patron_3 = Patron.new("Johnny", 5)
+  describe '#patrons_by_exhibit_interest' do
+    before :each do
+      @gems_and_minerals = Exhibit.new({name: "Gems and Minerals", cost: 0})
+      @dead_sea_scrolls = Exhibit.new({name: "Dead Sea Scrolls", cost: 10})
+      @imax = Exhibit.new({name: "IMAX",cost: 15})
 
-    patron_1.add_interest("Gems and Minerals")
-    patron_1.add_interest("Dead Sea Scrolls")
-    patron_2.add_interest("Dead Sea Scrolls")
-    patron_3.add_interest("Dead Sea Scrolls")
+      @patron_1 = Patron.new("Bob", 0)
+      @patron_2 = Patron.new("Sally", 20)
+      @patron_3 = Patron.new("Johnny", 5)
 
-    dmns.admit(patron_1)
-    dmns.admit(patron_2)
-    dmns.admit(patron_3)
+      @dmns.add_exhibit(@gems_and_minerals)
+      @dmns.add_exhibit(@dead_sea_scrolls)
 
-    expect(dmns.patrons_by_exhibit_interest).to eq({gems_and_minerals: ["Bob"], dead_sea_scrolls: ["Bob","Sally","Johnny"], imax: []})
+      @dmns.add_exhibit(@imax)
 
-    expect(dmns.ticket_lottery_contestants(dead_sea_scrolls)).to eq(dead_sea_scrolls:["Bob","Sally","Johnny"])
+      @patron_1.add_interest("Gems and Minerals")
+      @patron_1.add_interest("Dead Sea Scrolls")
+      @patron_2.add_interest("Dead Sea Scrolls")
+      @patron_3.add_interest("Dead Sea Scrolls")
 
-    dmns.draw_lottery_winner(dead_sea_scrolls)
+      @dmns.admit(@patron_1)
+      @dmns.admit(@patron_2)
+      @dmns.admit(@patron_3)
+    end
 
-    expect(dmns.ticket_lottery_contestants(dead_sea_scrolls)).to eq(dead_sea_scrolls.sample)
-    # I know it is supposed to == one of the people interested.
-    # I know it should be a randomw sample and should be choosing from an array.
-    # I think once chosen we want to remove them from the lottery array
-    # finished tests @9:55am gonna take a pom
-    # started writing code @ 10:00
-    # finished exhibit tests @ 10:10
-    # finished patron tests @ 10:30...had trouble figuring out the last test, moving on
-    # second to last in museum test I had trouble turning the patron interests into keys for my hash
+    it 'groups patrons by the exhibit that they are interested in' do
+      expected = {
+        @gems_and_minerals => [@patron_1],
+        @dead_sea_scrolls => [@patron_1, @patron_2, @patron_3],
+        @imax => []
+      }
+      expect(@dmns.patrons_by_exhibit_interest).to be_a Hash
+      expect(@dmns.patrons_by_exhibit_interest).to eq expected
+    end
+  end
 
+  describe '#ticket_lottery_contestants(exhibit)' do
+    before :each do
+      @gems_and_minerals = Exhibit.new({name: "Gems and Minerals", cost: 0})
+      @dead_sea_scrolls = Exhibit.new({name: "Dead Sea Scrolls", cost: 10})
+      @imax = Exhibit.new({name: "IMAX",cost: 15})
+
+      @patron_1 = Patron.new("Bob", 0)
+      @patron_2 = Patron.new("Sally", 20)
+      @patron_3 = Patron.new("Johnny", 5)
+
+      @dmns.add_exhibit(@gems_and_minerals)
+      @dmns.add_exhibit(@dead_sea_scrolls)
+
+      @dmns.add_exhibit(@imax)
+
+      @patron_1.add_interest("Gems and Minerals")
+      @patron_1.add_interest("Dead Sea Scrolls")
+      @patron_2.add_interest("Dead Sea Scrolls")
+      @patron_3.add_interest("Dead Sea Scrolls")
+
+      @dmns.admit(@patron_1)
+      @dmns.admit(@patron_2)
+      @dmns.admit(@patron_3)
+    end
+
+    it 'returns an array of the contestents that cant afford the exhibit they are interested in' do
+      expect(@dmns.ticket_lottery_contestants(@dead_sea_scrolls)).to be_a Array
+      expect(@dmns.ticket_lottery_contestants(@dead_sea_scrolls)).to eq [@patron_1, @patron_3]
+      expect(@dmns.ticket_lottery_contestants(@dead_sea_scrolls)).to_not include([@patron_2])
+    end
+  end
+
+  describe ' #draw_lottery_winner(exhibit)' do
+    before :each do
+      @gems_and_minerals = Exhibit.new({name: "Gems and Minerals", cost: 0})
+      @dead_sea_scrolls = Exhibit.new({name: "Dead Sea Scrolls", cost: 10})
+      @imax = Exhibit.new({name: "IMAX",cost: 15})
+
+      @patron_1 = Patron.new("Bob", 0)
+      @patron_2 = Patron.new("Sally", 20)
+      @patron_3 = Patron.new("Johnny", 5)
+
+      @dmns.add_exhibit(@gems_and_minerals)
+      @dmns.add_exhibit(@dead_sea_scrolls)
+
+      @dmns.add_exhibit(@imax)
+
+      @patron_1.add_interest("Gems and Minerals")
+      @patron_1.add_interest("Dead Sea Scrolls")
+      @patron_2.add_interest("Dead Sea Scrolls")
+      @patron_3.add_interest("Dead Sea Scrolls")
+
+      @dmns.admit(@patron_1)
+      @dmns.admit(@patron_2)
+      @dmns.admit(@patron_3)
+    end
+
+    it 'should select a random patron' do
+      expect(@dmns.draw_lottery_winner(@dead_sea_scrolls)).to be_a Patron
+      expect(@dmns.draw_lottery_winner(@gems_and_minerals)).to be_nil
+    end
   end
 
 end
